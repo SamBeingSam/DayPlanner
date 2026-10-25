@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daybreak — plan your day, watch it rise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: dark;
+  --ink:#fff8ef; --ink-dim:rgba(255,248,239,.62);
+  --glass:rgba(14,12,42,.52); --line:rgba(255,248,239,.16);
+  --sun:#ffc46b; --sun-hot:#ff8a5c; --done:#8fe3c0;
+  --top:#0e1033; --bot:#2a2060;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0;min-height:100%;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  background:linear-gradient(180deg,var(--top),var(--bot)) fixed #0e1033;
+}
+#stars{position:fixed;inset:0;pointer-events:none}
+#stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+main{position:relative;max-width:640px;margin:0 auto;padding:28px 20px 72px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,9vw,3.8rem);line-height:1;letter-spacing:-.03em;margin:8px 0 6px}
+.date{color:var(--ink-dim);margin:0}
+.sky{position:relative;margin:18px -8px 0}
+.sky svg{display:block;width:100%;height:auto;overflow:visible}
+.readout{text-align:center;margin-top:-6px}
+.pct{font-family:var(--display);font-weight:800;font-size:clamp(3.4rem,15vw,5.6rem);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.msg{color:var(--ink-dim);margin:4px 0 0;min-height:1.5em}
+form{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 8px;padding:12px;background:var(--glass);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+form input[type=text]{flex:1 1 220px;min-width:0;background:transparent;border:0;color:var(--ink);font:inherit;font-size:1.05rem;padding:10px 12px}
+form input::placeholder{color:var(--ink-dim)}
+.seg{display:flex;gap:2px;background:rgba(255,255,255,.08);border-radius:999px;padding:3px}
+.seg label{cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:7px 12px;border-radius:999px;font-size:.88rem;color:var(--ink-dim);transition:background .2s,color .2s}
+.seg input:checked+span{background:var(--ink);color:#1a1440;font-weight:600}
+.seg input:focus-visible+span{outline:2px solid var(--sun);outline-offset:2px}
+.add{border:0;cursor:pointer;font:inherit;font-weight:600;color:#2a1304;padding:10px 20px;border-radius:999px;background:linear-gradient(135deg,var(--sun),var(--sun-hot))}
+button:focus-visible,input[type=text]:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+section{margin-top:26px}
+h2{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:0 0 4px;display:flex;align-items:baseline;gap:10px}
+h2 small{font-family:var(--body);font-weight:400;font-size:.85rem;color:var(--ink-dim)}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line)}
+.box{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,248,239,.5);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0;transition:background .25s,border-color .25s,transform .25s}
+.box:hover{border-color:var(--sun)}
+.box svg{width:16px;height:16px;fill:none;stroke:#10301f;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;transition:stroke-dashoffset .35s .1s}
+li.done .box{background:var(--done);border-color:var(--done);transform:scale(1.06)}
+li.done .box svg{stroke-dashoffset:0}
+.txt{flex:1;min-width:0;overflow-wrap:anywhere;font-size:1.05rem;
+  background:linear-gradient(currentColor,currentColor) no-repeat 0 56%/0% 2px;transition:background-size .45s cubic-bezier(.6,0,.2,1),opacity .4s,color .4s}
+li.done .txt{background-size:100% 2px;opacity:.45}
+.del{flex:none;border:0;background:transparent;color:var(--ink-dim);cursor:pointer;font-size:1.3rem;line-height:1;padding:6px 8px;border-radius:8px;opacity:.5}
+.del:hover{opacity:1;color:var(--sun-hot)}
+.empty{color:var(--ink-dim);font-size:.95rem;padding:12px 4px;margin:0}
+.foot{margin-top:34px;text-align:center}
+.foot button{border:1px solid var(--line);background:var(--glass);color:var(--ink);font:inherit;font-size:.9rem;padding:9px 18px;border-radius:999px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stars" aria-hidden="true"></div>
+<main>
+  <p class="date" id="date"></p>
+  <h1 id="hello">Good day.</h1>
+
+  <div class="sky">
+    <svg viewBox="0 0 600 230" role="img" aria-label="Sun rising along an arc as tasks are completed">
+      <defs>
+        <radialGradient id="glow"><stop offset="0" stop-color="#ffd58a" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a5c" stop-opacity="0"/></radialGradient>
+      </defs>
+      <path id="track" d="M40 200 A260 170 0 0 1 560 200" fill="none" stroke="rgba(255,248,239,.22)" stroke-width="2" stroke-dasharray="2 8" stroke-linecap="round"/>
+      <path id="prog" d="M40 200 A260 170 0 0 1 560 200" fill="none" stroke="#ffc46b" stroke-width="3" stroke-linecap="round" style="transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)"/>
+      <line x1="0" y1="200" x2="600" y2="200" stroke="rgba(255,248,239,.35)"/>
+      <g id="sun" style="transition:transform .9s cubic-bezier(.4,0,.2,1)">
+        <circle r="46" fill="url(#glow)"/>
+        <circle r="15" fill="#ffd58a"/>
+      </g>
+    </svg>
+  </div>
+  <div class="readout">
+    <div class="pct" id="pct">0%</div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+  </div>
+
+  <form id="f" autocomplete="off">
+    <input type="text" id="in" placeholder="What needs doing today?" maxlength="120" aria-label="New task" required>
+    <div class="seg" role="radiogroup" aria-label="Part of day">
+      <label><input type="radio" name="b" value="morning" checked><span>Morning</span></label>
+      <label><input type="radio" name="b" value="afternoon"><span>Afternoon</span></label>
+      <label><input type="radio" name="b" value="evening"><span>Evening</span></label>
+    </div>
+    <button class="add" type="submit">Add task</button>
+  </form>
+
+  <div id="lists"></div>
+  <div class="foot"><button id="clear" type="button">Clear finished tasks</button></div>
+</main>
+
+<script>
+(function(){
+  var KEY="daybreak:v1", BLOCKS=[["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"]];
+  var tasks=[];
+  try{var raw=localStorage.getItem(KEY); if(raw) tasks=JSON.parse(raw)||[];}catch(e){}
+  if(!tasks.length) tasks=[
+    {id:1,t:"Write the one thing that matters most",b:"morning",d:false},
+    {id:2,t:"Reply to the three emails that are waiting",b:"morning",d:false},
+    {id:3,t:"Take a proper lunch away from the screen",b:"afternoon",d:false},
+    {id:4,t:"Finish the draft, then stop",b:"afternoon",d:false},
+    {id:5,t:"Plan tomorrow in five minutes",b:"evening",d:false}
+  ];
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(tasks));}catch(e){}}
+
+  var now=new Date(), h=now.getHours();
+  document.getElementById("date").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  document.getElementById("hello").textContent=h<5?"Still up?":h<12?"Good morning.":h<18?"Good afternoon.":"Good evening.";
+
+  // stars
+  var st=document.getElementById("stars"), stars=[];
+  for(var i=0;i<46;i++){var s=document.createElement("i");s.style.left=(Math.random()*100)+"%";s.style.top=(Math.random()*62)+"%";s.style.opacity=(.3+Math.random()*.7);s.dataset.o=s.style.opacity;st.appendChild(s);stars.push(s);}
+
+  // sky colours: night -> dusk-rose -> golden day
+  var TOP=[[14,16,51],[78,48,128],[255,170,110]], BOT=[[42,32,96],[232,113,141],[255,226,166]];
+  function mix(a,b,t){return a.map(function(v,i){return Math.round(v+(b[i]-v)*t);});}
+  function sky(p){
+    var seg=p<.5?0:1, t=p<.5?p*2:(p-.5)*2;
+    var tc=mix(TOP[seg],TOP[seg+1],t), bc=mix(BOT[seg],BOT[seg+1],t), r=document.documentElement.style;
+    r.setProperty("--top","rgb("+tc+")"); r.setProperty("--bot","rgb("+bc+")");
+    stars.forEach(function(s){s.style.opacity=s.dataset.o*Math.max(0,1-p*1.6);});
+  }
+
+  var prog=document.getElementById("prog"), sun=document.getElementById("sun"), len=prog.getTotalLength();
+  prog.style.strokeDasharray=len;
+  function place(p){
+    prog.style.strokeDashoffset=len*(1-p);
+    var pt=prog.getPointAtLength(len*p);
+    sun.style.transform="translate("+pt.x+"px,"+pt.y+"px)";
+  }
+
+  var msgs=["A clear sky. Start with one task.","The sun is up. Keep going.","Past halfway. The light is turning gold.","Nearly there.","The day is done. Well played."];
+  var lists=document.getElementById("lists");
+
+  function update(){
+    var n=tasks.length, d=tasks.filter(function(x){return x.d;}).length, p=n?d/n:0;
+    document.getElementById("pct").textContent=Math.round(p*100)+"%";
+    document.getElementById("msg").textContent=n?(d+" of "+n+" done. "+(p===1?msgs[4]:p>=.75?msgs[3]:p>=.5?msgs[2]:p>0?msgs[1]:msgs[0])):"Add a task to begin your day.";
+    place(p); sky(p);
+  }
+
+  function render(){
+    lists.innerHTML="";
+    BLOCKS.forEach(function(B){
+      var items=tasks.filter(function(x){return x.b===B[0];});
+      var sec=document.createElement("section"), hd=document.createElement("h2");
+      var dn=items.filter(function(x){return x.d;}).length;
+      hd.textContent=B[1]; var sm=document.createElement("small"); sm.textContent=items.length?(dn+"/"+items.length):""; hd.appendChild(sm);
+      sec.appendChild(hd);
+      if(!items.length){var e=document.createElement("p");e.className="empty";e.textContent="Nothing planned. Add something above.";sec.appendChild(e);}
+      else{
+        var ul=document.createElement("ul");
+        items.forEach(function(x){
+          var li=document.createElement("li"); if(x.d) li.className="done";
+          var b=document.createElement("button"); b.type="button"; b.className="box"; b.setAttribute("role","checkbox"); b.setAttribute("aria-checked",x.d);
+          b.setAttribute("aria-label","Mark done: "+x.t);
+          b.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+          var sp=document.createElement("span"); sp.className="txt"; sp.textContent=x.t;
+          var del=document.createElement("button"); del.type="button"; del.className="del"; del.setAttribute("aria-label","Delete task: "+x.t); del.textContent="×";
+          b.onclick=function(){
+            x.d=!x.d; save(); li.classList.toggle("done",x.d); b.setAttribute("aria-checked",x.d);
+            sm.textContent=tasks.filter(function(y){return y.b===B[0]&&y.d;}).length+"/"+items.length; update();
+          };
+          del.onclick=function(){tasks=tasks.filter(function(y){return y.id!==x.id;});save();render();};
+          li.appendChild(b);li.appendChild(sp);li.appendChild(del);ul.appendChild(li);
+        });
+        sec.appendChild(ul);
+      }
+      lists.appendChild(sec);
+    });
+    update();
+  }
+
+  document.getElementById("f").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var inp=document.getElementById("in"), v=inp.value.trim(); if(!v) return;
+    var b=document.querySelector('input[name=b]:checked').value;
+    tasks.push({id:Date.now(),t:v,b:b,d:false}); save(); inp.value=""; render(); inp.focus();
+  });
+  document.getElementById("clear").onclick=function(){tasks=tasks.filter(function(x){return !x.d;});save();render();};
+
+  // start from empty sky, then rise to current progress
+  prog.style.strokeDashoffset=len; sun.style.transform="translate(40px,200px)";
+  render();
+})();
+</script>
+</body>
+</html>
