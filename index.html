@@ -125,11 +125,10 @@ li.done .txt{background-size:100% 2px;opacity:.45}
   document.getElementById("date").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
   document.getElementById("hello").textContent=h<5?"Still up?":h<12?"Good morning.":h<18?"Good afternoon.":"Good evening.";
 
-  // stars
   var st=document.getElementById("stars"), stars=[];
   for(var i=0;i<46;i++){var s=document.createElement("i");s.style.left=(Math.random()*100)+"%";s.style.top=(Math.random()*62)+"%";s.style.opacity=(.3+Math.random()*.7);s.dataset.o=s.style.opacity;st.appendChild(s);stars.push(s);}
 
-  // sky colours: night -> dusk-rose -> golden day
+  
   var TOP=[[14,16,51],[78,48,128],[255,170,110]], BOT=[[42,32,96],[232,113,141],[255,226,166]];
   function mix(a,b,t){return a.map(function(v,i){return Math.round(v+(b[i]-v)*t);});}
   function sky(p){
@@ -197,7 +196,7 @@ li.done .txt{background-size:100% 2px;opacity:.45}
   });
   document.getElementById("clear").onclick=function(){tasks=tasks.filter(function(x){return !x.d;});save();render();};
 
-  // start from empty sky, then rise to current progress
+
   prog.style.strokeDashoffset=len; sun.style.transform="translate(40px,200px)";
   render();
 })();
